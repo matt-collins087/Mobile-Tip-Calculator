@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import {
+  Button,
   Keyboard,
   Image,
   StyleSheet,
@@ -9,7 +10,6 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Modal,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -17,9 +17,11 @@ export default function App() {
   const [total, onChangeTotal] = React.useState(null);
   const [tip, onChangeTip] = React.useState(null);
   const [customTip, onChangeCustomTip] = React.useState(null);
+  const [splitBill, onChangeSplitBill] = React.useState(1);
 
   let tipAmount = total * (tip * 0.01);
   let grandTotal = total + tipAmount;
+  let totalSplit = grandTotal / splitBill;
 
   const TipButton = ({ percent }) => {
     let result = total * percent;
@@ -44,7 +46,7 @@ export default function App() {
         <TextInput
           style={styles.hidden}
           ref={inputRef}
-          keyboardType="decimal-pad"
+          keyboardType="number-pad"
           onEndEditing={(e) => {
             onChangeCustomTip(+e.nativeEvent.text);
             onChangeTip(+e.nativeEvent.text);
@@ -61,6 +63,15 @@ export default function App() {
     );
   };
 
+  const DecrementSplit = () => {
+    if (splitBill > 1) {
+      onChangeSplitBill(splitBill - 1);
+    }
+  };
+  const IncrementSplit = () => {
+    onChangeSplitBill(splitBill + 1);
+  };
+
   return (
     <>
       <LinearGradient colors={["#096d82", "#103f60"]} style={styles.background}>
@@ -74,7 +85,6 @@ export default function App() {
         <View style={{ height: 600 }}>
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <View style={styles.container}>
-
               <View style={styles.containers}>
                 <Text style={styles.text}>Bill Amount</Text>
                 <View style={styles.billAmount}>
@@ -98,12 +108,32 @@ export default function App() {
                 <TipButton percent={10} />
                 <TipButton percent={15} />
                 <TipButton percent={20} />
-                <CustomTipButton stlye={styles.customButton}/>
+                <CustomTipButton stlye={styles.customButton} />
+              </View>
+
+              <View style={styles.splitBillContainer}>
+                <Text style={styles.text}>Split Bill</Text>
+                <View style={styles.splitBill}>
+                  <TouchableWithoutFeedback
+                    onPress={DecrementSplit}
+                  >
+                    <Text style={{ fontSize: 30, color: "white"}}> - </Text>
+                  </TouchableWithoutFeedback>
+                  <Text style={{ fontSize: 28, color: "white", marginHorizontal: 10}}>{splitBill}</Text>
+                  <TouchableWithoutFeedback
+                    onPress={IncrementSplit}
+                  >
+                    <Text style={{ fontSize: 30, color: "white"}}> + </Text>
+                  </TouchableWithoutFeedback>
+                </View>
               </View>
 
               <View style={styles.resultContainer}>
-                <Text style={styles.text}>
+                <Text style={styles.total}>
                   Grand Total: ${grandTotal.toFixed(2)}
+                </Text>
+                <Text style={styles.totalSplit}>
+                  Per Person: ${totalSplit.toFixed(2)}
                 </Text>
               </View>
 
@@ -146,6 +176,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  billButton: {
+    color: "white",
+  },
   button: {
     justifyContent: "center",
     alignItems: "center",
@@ -169,11 +202,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   containers: {
-    width: '60%',
+    width: "60%",
     justifyContent: "center",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: 'white',
+    borderBottomColor: "white",
     padding: 5,
   },
   customActive: {
@@ -222,7 +255,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: 100,
-    marginVertical: 20,
+    marginVertical: 25,
     flexDirection: "row",
   },
   input: {
@@ -234,7 +267,22 @@ const styles = StyleSheet.create({
   },
   resultContainer: {
     justifyContent: "center",
+    alignItems: "center",
     marginTop: 20,
+  },
+  splitBillContainer: {
+    width: "60%",
+    marginTop: 20,
+    marginBottom: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "white",
+    padding: 5,
+  },
+  splitBill: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   tipAmount: {
     borderBottomColor: "white",
@@ -243,13 +291,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   tipAmountContainer: {
-    width: '60%',
+    width: "60%",
     marginTop: 20,
     marginBottom: 30,
     justifyContent: "center",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: 'white',
+    borderBottomColor: "white",
     padding: 5,
   },
   tipContainer: {
@@ -259,6 +307,18 @@ const styles = StyleSheet.create({
   text: {
     marginBottom: 10,
     fontSize: 25,
+    color: "white",
+  },
+  total: {
+    marginBottom: 10,
+    fontSize: 25,
+    fontWeight: "600",
+    color: "white",
+  },
+  totalSplit: {
+    marginBottom: 10,
+    fontSize: 18,
+    fontWeight: "400",
     color: "white",
   },
 });
